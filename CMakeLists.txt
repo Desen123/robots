@@ -9,7 +9,6 @@ project(robots)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   std_msgs
-  roscpp
   rosmsg
   turtlesim
   message_generation
