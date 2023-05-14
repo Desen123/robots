@@ -8,9 +8,9 @@ from geometry_msgs.msg import Twist
 
 class Zombie:
     def __init__(self):
-        self.x = 1
-        self.y = 1
-        self.phi = 0
+        self.x = rospy.get_param('~x', 1)
+        self.y = rospy.get_param('~y', 1)
+        self.phi = rospy.get_param('~theta', 1)
         self.lin_speed = rospy.get_param('~speed_linear', 1.0)
         self.ang_speed = rospy.get_param('~speed_angular', 1.0)
 
@@ -38,6 +38,8 @@ class Zombie:
 
         desired_agle_goal = math.atan2(y_goal - self.y, x_goal - self.x)
         angular_speed = (desired_agle_goal - self.phi) * self.ang_speed
+        rospy.loginfo('%s, %s', desired_agle_goal, angular_speed)
+    
 
         velocity_message.linear.x = linear_speed
         velocity_message.angular.z = angular_speed
