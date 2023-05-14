@@ -2,6 +2,7 @@ import rospy
 import math
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
+from geometry_msgs.msg import Twist
 
 
 class Zombie:
@@ -13,13 +14,12 @@ class Zombie:
         self.ang_speed = rospy.get_param('~speed_angular', 1.0)
 
         rospy.loginfo('init done')
-        rospy.wait_for_service('spawn')
+        rospy.wait_for_service('turtlesim1/spawn')
         try: 
             rospy.loginfo('spawning turtle')
-            spawner = rospy.ServiceProxy('spawn', turtlesim/Spawn)
+            spawner = rospy.ServiceProxy('turtlesim1/spawn', turtlesim/Spawn)
             spawner(self.x, self.y, self.phi, "")
-            # pub = rospy.Publisher('chatter', String, queue_size=10)
-            # rate = rospy.Rate(10) # 10hz
+            self.pub = rospy.Publisher('turtle2/cmd_vel', Twist, queue_size=10)
             rospy.loginfo('listen')
             self.listener()
         except rospy.ServiceException as e:
@@ -27,7 +27,6 @@ class Zombie:
 
     def go_to_goal(self, x_goal, y_goal):
         velocity_message = Twist()
-        cmd_vel_topic='/turtle2/cmd_vel'
         
         distance = abs(math.sqrt(((x_goal - self.x) ** 2) + (y_goal - self.y) ** 2))
         linear_speed = distance * self.lin_speed
@@ -37,6 +36,8 @@ class Zombie:
 
         velocity_message.linear.x = linear_speed
         velocity_message.angular.z = angular_speed
+
+        self.pub.publish(velocity_message)
 
     def callback(self, data):
         rospy.loginfo(rospy.get_caller_id() + ' heard\n x: %s\n y: %s ', data.x, data.y)
