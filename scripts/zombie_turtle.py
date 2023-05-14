@@ -14,9 +14,9 @@ class Zombie:
         self.lin_speed = rospy.get_param('~speed_linear', 1.0)
         self.ang_speed = rospy.get_param('~speed_angular', 1.0)
 
-        rospy.wait_for_service('turtlesim1/spawn')
+        rospy.wait_for_service('spawn', 10)
         try: 
-            spawner = rospy.ServiceProxy('turtlesim1/spawn', Spawn)
+            spawner = rospy.ServiceProxy('spawn', Spawn)
             spawn_arg = SpawnRequest()
             
             spawn_arg.x = self.x
@@ -25,7 +25,7 @@ class Zombie:
             spawn_arg.name = "turtle2"
 
             spawner(spawn_arg)
-            self.pub = rospy.Publisher('turtlesim1/turtle2/cmd_vel', Twist, queue_size=10)
+            self.pub = rospy.Publisher('turtle2/cmd_vel', Twist, queue_size=10)
             self.listener()
         except rospy.ServiceException as e:
             print ('Service call fail: %s', e)
@@ -42,15 +42,16 @@ class Zombie:
         velocity_message.linear.x = linear_speed
         velocity_message.angular.z = angular_speed
 
-        self.pub.publish(velocity_message)
+        if (distance > 0.5):
+            self.pub.publish(velocity_message)
 
     def callback(self, data):
-        rospy.loginfo(rospy.get_caller_id() + ' heard\n x: %s\n y: %s ', data.x, data.y)
-        # self.go_to_goal(data.x, data.y)
+        self.go_to_goal(data.x, data.y)
+
     def ack(self, data):
         self.x = data.x
         self.y = data.y
-        self.phi = data.phi
+        self.phi = data.theta
 
     def listener(self):
         rospy.init_node('listener', anonymous=True)
