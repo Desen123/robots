@@ -44,7 +44,7 @@ class Zombie:
         velocity_message.linear.x = linear_speed
         velocity_message.angular.z = angular_speed
 
-        if (distance > 0.5):
+        if ((linear_speed < 4) | (angular_speed < 4) | ((distance > 0.5) & (distance < 4))):
             self.pub.publish(velocity_message)
 
     def callback(self, data):
